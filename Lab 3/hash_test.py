@@ -54,7 +54,7 @@ print(f"2. Test Incorrect OTP ('000000'): {is_invalid}")
 
 # Test 3: Expired OTP
 print("\nWaiting 35 seconds for the OTP to expire...")
-time.sleep(35)  # Pauses execution so the 30-second TOTP window rolls over
+time.sleep(35) 
 
 is_expired = verify_otp(user_secret, current_otp)
 print(f"3. Test Expired OTP ({current_otp}): {is_expired}")
