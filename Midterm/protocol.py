@@ -38,7 +38,6 @@ class ProtocolConnection:
         if len(line) > MAX_MESSAGE_SIZE + 1:
             raise MessageTooLongError("Message exceeds 4096 bytes")
         if not line.endswith(b"\n"):
-            # The connection ended before the newline arrived: this is
             # an incomplete frame, not a message. Discard it 
             return None
         message = line.decode("utf-8")
