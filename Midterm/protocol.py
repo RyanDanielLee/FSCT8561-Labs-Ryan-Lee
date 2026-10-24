@@ -1,12 +1,11 @@
 MAX_MESSAGE_SIZE = 4096
 
-
 class MessageTooLongError(Exception):
-    """Raised when a peer sends a message that is too long"""
+    """Raised when a peer sends a message longer than MAX_MESSAGE_SIZE."""
 
 
 class ProtocolConnection:
-    """One framed connection: wraps a connected TCP socket"""
+    """One framed connection: wraps a connected TCP socket."""
 
     def __init__(self, sock):
         self.sock = sock
@@ -14,7 +13,7 @@ class ProtocolConnection:
 
     def send_message(self, message):
         """
-        Send one message. The caller supplies the text WITHOUT a newline
+        Send one message. The caller supplies the text WITHOUT a newline;
         the newline terminator is added here and nowhere else.
         """
         if "\n" in message or "\r" in message:
@@ -29,17 +28,21 @@ class ProtocolConnection:
         Return the next message as text (without its terminator).
         Returns None if the peer closed the connection cleanly.
         Raises MessageTooLongError for an over-long message and
-        non valid UTF-8. callers handle both as malformed input (Part C.5).
+        non valid UTF-8; callers handle both as malformed input.
         """
         # Read at most MAX + 2 bytes for one line. The +2 covers the
-        # terminator. anything longer than that cannot be a legal message.
+        # terminator; anything longer than that cannot be a legal message.
         line = self.reader.readline(MAX_MESSAGE_SIZE + 2)
         if not line:
             return None
         if len(line) > MAX_MESSAGE_SIZE + 1:
             raise MessageTooLongError("Message exceeds 4096 bytes")
+        if not line.endswith(b"\n"):
+            # The connection ended before the newline arrived: this is
+            # an incomplete frame, not a message. Discard it 
+            return None
         message = line.decode("utf-8")
-        # Strip line terminator(s)
+        # Strip exactly the line terminator(s), nothing else.
         if message.endswith("\n"):
             message = message[:-1]
         if message.endswith("\r"):
