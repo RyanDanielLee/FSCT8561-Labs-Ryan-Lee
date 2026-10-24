@@ -42,7 +42,7 @@ class ProtocolConnection:
             # an incomplete frame, not a message. Discard it 
             return None
         message = line.decode("utf-8")
-        # Strip exactly the line terminator(s), nothing else.
+        # Strip line terminator(s)
         if message.endswith("\n"):
             message = message[:-1]
         if message.endswith("\r"):
